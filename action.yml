@@ -172,7 +172,7 @@ runs:
         claude_refresh_token: ${{ inputs.claude_refresh_token }}
         claude_expires_at: ${{ inputs.claude_expires_at }}
         claude_env: ${{ inputs.claude_env }}
-        github_token: ${{ inputs.PAT_WITH_SECRETS_WRITE }}
+        pat_with_secrets_write: ${{ inputs.PAT_WITH_SECRETS_WRITE }}
       env:
         # Model configuration
         ANTHROPIC_MODEL: ${{ inputs.model || inputs.anthropic_model }}
