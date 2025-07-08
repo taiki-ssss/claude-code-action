@@ -122,6 +122,13 @@ export function checkContainsTrigger(context: ParsedGitHubContext): boolean {
     const commentBody = isIssueCommentEvent(context)
       ? context.payload.comment.body
       : context.payload.comment.body;
+    
+    // Skip self-review comments from Claude itself
+    if (commentBody.includes("<!-- claude-self-review -->")) {
+      console.log("Found self-review marker in comment");
+      return true; // Still trigger, but we'll handle actor check differently
+    }
+    
     // Check for exact match with word boundaries or punctuation
     const regex = new RegExp(
       `(^|\\s)${escapeRegExp(triggerPhrase)}([\\s.,!?;:]|$)`,

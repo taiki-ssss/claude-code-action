@@ -55,7 +55,9 @@ async function run() {
 5. **Testing**: Are there adequate tests for the changes?
 6. **Improvements**: What could be done better?
 
-Reference: Original task [comment #${claudeCommentId}](https://github.com/${owner}/${repo}/issues/${context.entityNumber}#issuecomment-${claudeCommentId})`;
+Reference: Original task [comment #${claudeCommentId}](https://github.com/${owner}/${repo}/issues/${context.entityNumber}#issuecomment-${claudeCommentId})
+
+<!-- claude-self-review -->`;
 
     const response = await octokit.rest.issues.createComment({
       owner,

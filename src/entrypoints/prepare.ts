@@ -28,18 +28,7 @@ async function run() {
     // Step 2: Parse GitHub context (once for all operations)
     const context = parseGitHubContext();
 
-    // Step 3: Check write permissions
-    const hasWritePermissions = await checkWritePermissions(
-      octokit.rest,
-      context,
-    );
-    if (!hasWritePermissions) {
-      throw new Error(
-        "Actor does not have write permissions to the repository",
-      );
-    }
-
-    // Step 4: Check trigger conditions
+    // Step 3: Check trigger conditions first
     const containsTrigger = await checkTriggerAction(context);
 
     if (!containsTrigger) {
@@ -47,13 +36,38 @@ async function run() {
       return;
     }
 
-    // Step 5: Check if actor is human
-    await checkHumanActor(octokit.rest, context);
+    // Step 4: Check if this is a self-review comment
+    let isSelfReview = false;
+    if (context.eventName === "issue_comment" && context.payload.comment) {
+      const commentBody = context.payload.comment.body || "";
+      if (commentBody.includes("<!-- claude-self-review -->")) {
+        console.log("This is a self-review comment, skipping actor and permission checks");
+        isSelfReview = true;
+      }
+    }
 
-    // Step 6: Create initial tracking comment
+    // Step 5: Check write permissions (skip for self-review)
+    if (!isSelfReview) {
+      const hasWritePermissions = await checkWritePermissions(
+        octokit.rest,
+        context,
+      );
+      if (!hasWritePermissions) {
+        throw new Error(
+          "Actor does not have write permissions to the repository",
+        );
+      }
+    }
+
+    // Step 6: Check if actor is human (skip for self-review)
+    if (!isSelfReview) {
+      await checkHumanActor(octokit.rest, context);
+    }
+
+    // Step 7: Create initial tracking comment
     const commentId = await createInitialComment(octokit.rest, context);
 
-    // Step 7: Fetch GitHub data (once for both branch setup and prompt creation)
+    // Step 8: Fetch GitHub data (once for both branch setup and prompt creation)
     const githubData = await fetchGitHubData({
       octokits: octokit,
       repository: `${context.repository.owner}/${context.repository.repo}`,
@@ -62,10 +76,10 @@ async function run() {
       triggerUsername: context.actor,
     });
 
-    // Step 8: Setup branch
+    // Step 9: Setup branch
     const branchInfo = await setupBranch(octokit, githubData, context);
 
-    // Step 9: Update initial comment with branch link (only for issues that created a new branch)
+    // Step 10: Update initial comment with branch link (only for issues that created a new branch)
     if (branchInfo.claudeBranch) {
       await updateTrackingComment(
         octokit,
@@ -75,7 +89,7 @@ async function run() {
       );
     }
 
-    // Step 10: Create prompt file
+    // Step 11: Create prompt file
     await createPrompt(
       commentId,
       branchInfo.baseBranch,
@@ -84,7 +98,7 @@ async function run() {
       context,
     );
 
-    // Step 11: Get MCP configuration
+    // Step 12: Get MCP configuration
     const additionalMcpConfig = process.env.MCP_CONFIG || "";
     const mcpConfig = await prepareMcpConfig({
       githubToken,
