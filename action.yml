@@ -50,6 +50,10 @@ inputs:
     description: "Direct instruction for Claude (bypasses normal trigger detection)"
     required: false
     default: ""
+  enable_self_review:
+    description: "Enable automatic self-review comment after Claude completes tasks"
+    required: false
+    default: "false"
   mcp_config:
     description: "Additional MCP configuration (JSON string) that merges with the built-in GitHub MCP servers"
   additional_permissions:
@@ -239,6 +243,15 @@ runs:
           cat "${{ steps.claude-code.outputs.execution_file }}" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
         fi
+
+    - name: Post self-review comment
+      if: steps.prepare.outputs.contains_trigger == 'true' && steps.claude-code.outputs.conclusion == 'success' && inputs.enable_self_review == 'true'
+      shell: bash
+      run: |
+        bun run ${GITHUB_ACTION_PATH}/src/entrypoints/post-self-review-comment.ts
+      env:
+        GITHUB_TOKEN: ${{ steps.prepare.outputs.GITHUB_TOKEN }}
+        CLAUDE_COMMENT_ID: ${{ steps.prepare.outputs.claude_comment_id }}
 
     - name: Revoke app token
       if: always() && inputs.github_token == ''
