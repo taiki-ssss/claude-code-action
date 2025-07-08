@@ -53,7 +53,7 @@ inputs:
   enable_self_review:
     description: "Enable automatic self-review comment after Claude completes tasks"
     required: false
-    default: "false"
+    default: "true"
   mcp_config:
     description: "Additional MCP configuration (JSON string) that merges with the built-in GitHub MCP servers"
   additional_permissions:

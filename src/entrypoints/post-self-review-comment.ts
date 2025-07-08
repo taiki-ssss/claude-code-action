@@ -25,6 +25,26 @@ async function run() {
     // Create GitHub client
     const octokit = createOctokit(githubToken);
 
+    // Check if this is already a self-review that found no issues
+    if (claudeCommentId) {
+      try {
+        const comment = await octokit.rest.issues.getComment({
+          owner,
+          repo,
+          comment_id: parseInt(claudeCommentId, 10),
+        });
+        
+        // If the comment contains the "no improvements" marker, skip creating another review
+        if (comment.data.body?.includes("✅ No further improvements needed")) {
+          console.log("Previous review found no improvements needed. Skipping self-review.");
+          return;
+        }
+      } catch (error) {
+        console.warn("Could not check previous comment:", error);
+        // Continue with self-review if we can't check
+      }
+    }
+
     // Create self-review comment
     const body = `@claude Please review the changes you just made:
 

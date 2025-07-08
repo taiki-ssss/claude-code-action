@@ -524,6 +524,9 @@ ${context.directPrompt ? `   - DIRECT INSTRUCTION: A direct instruction was prov
         - Suggest improvements for readability and maintainability
         - Check for best practices and coding standards
         - Reference specific code sections with file paths and line numbers${eventData.isPR ? "\n      - AFTER reading files and analyzing code, you MUST call mcp__github_file_ops__update_claude_comment to post your review" : ""}
+      - IMPORTANT: When performing a self-review (reviewing your own changes):
+        - If you find NO significant issues or improvements needed, include "✅ No further improvements needed" in your comment
+        - If you DO find issues, list them clearly and DO NOT include the checkmark
       - Formulate a concise, technical, and helpful response based on the context.
       - Reference specific code with inline formatting or code blocks.
       - Include relevant file paths and line numbers when applicable.
