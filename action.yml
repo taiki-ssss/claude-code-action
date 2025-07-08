@@ -92,6 +92,10 @@ inputs:
     description: "Claude AI OAuth token expiration timestamp (required when use_oauth is true)"
     required: false
     default: ""
+  github_token:
+    description: "Parsonal Access Token (required when use_oauth is true)"
+    required: false
+    default: ""
 
   max_turns:
     description: "Maximum number of conversation turns"
@@ -168,6 +172,7 @@ runs:
         claude_refresh_token: ${{ inputs.claude_refresh_token }}
         claude_expires_at: ${{ inputs.claude_expires_at }}
         claude_env: ${{ inputs.claude_env }}
+        github_token: ${{ inputs.PAT_WITH_SECRETS_WRITE }}
       env:
         # Model configuration
         ANTHROPIC_MODEL: ${{ inputs.model || inputs.anthropic_model }}
