@@ -250,7 +250,7 @@ runs:
       run: |
         bun run ${GITHUB_ACTION_PATH}/src/entrypoints/post-self-review-comment.ts
       env:
-        GITHUB_TOKEN: ${{ steps.prepare.outputs.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ github.token }}  # Use GitHub Actions token instead of App token
         CLAUDE_COMMENT_ID: ${{ steps.prepare.outputs.claude_comment_id }}
 
     - name: Revoke app token

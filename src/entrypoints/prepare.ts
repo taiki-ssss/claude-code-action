@@ -40,8 +40,12 @@ async function run() {
     let isSelfReview = false;
     if (context.eventName === "issue_comment" && context.payload.comment) {
       const commentBody = context.payload.comment.body || "";
-      if (commentBody.includes("<!-- claude-self-review -->")) {
-        console.log("This is a self-review comment, skipping actor and permission checks");
+      const commentUser = context.payload.comment.user;
+      // Check for self-review marker and ensure it's from GitHub Actions bot
+      if (commentBody.includes("<!-- claude-self-review -->") && 
+          commentUser.type === "Bot" && 
+          commentUser.login === "github-actions[bot]") {
+        console.log("This is a self-review comment from GitHub Actions bot, skipping actor and permission checks");
         isSelfReview = true;
       }
     }
