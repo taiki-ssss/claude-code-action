@@ -92,7 +92,7 @@ inputs:
     description: "Claude AI OAuth token expiration timestamp (required when use_oauth is true)"
     required: false
     default: ""
-  github_token:
+  pat_with_secrets_write:
     description: "Parsonal Access Token (required when use_oauth is true)"
     required: false
     default: ""
